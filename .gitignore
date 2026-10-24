@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+backend/dist/
+frontend/.next/
+frontend/out/
+*.tsbuildinfo
+frontend/next-env.d.ts
+
+# env / secrets — never commit these
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# logs & os
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,264 @@
+@import 'tailwindcss';
+
+/* Bind Tailwind's `dark:` variant to our attribute instead of the raw media
+   query, so `dark:` utilities follow the in-app toggle too. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ============================================================
+   Theme palettes.
+   Light is the :root default; `data-theme="dark"` on <html> flips it.
+   The inline script in layout.tsx sets that attribute before first
+   paint, so there is no flash of the wrong theme.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-subtle: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f3f3f5;
+  --surface-3: #ebebee;
+
+  --fg: #0a0a0b;
+  --fg-muted: #55555f;
+  --fg-subtle: #8b8b94;
+
+  --line: rgba(9, 9, 11, 0.1);
+  --line-strong: rgba(9, 9, 11, 0.18);
+
+  /* Low-contrast raised fills (hover states, inset chips). */
+  --raise: rgba(9, 9, 11, 0.04);
+  --raise-2: rgba(9, 9, 11, 0.07);
+  --raise-3: rgba(9, 9, 11, 0.11);
+
+  /* Accents are darkened for light mode so text on white clears WCAG AA. */
+  --violet: #6d28d9;
+  --purple: #7c3aed;
+  --purple-soft: #6d28d9;
+  --cyan: #0e7490;
+  --success: #15803d;
+  --warn: #a16207;
+  --danger: #be123c;
+
+  --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.05);
+  --shadow-md: 0 1px 2px rgba(9, 9, 11, 0.04), 0 10px 24px -14px rgba(9, 9, 11, 0.14);
+  --shadow-lg: 0 2px 4px rgba(9, 9, 11, 0.04), 0 18px 44px -16px rgba(9, 9, 11, 0.18);
+
+  --glow: 0.1;
+  --grid-line: rgba(9, 9, 11, 0.045);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #070708;
+  --bg-subtle: #0c0c0e;
+  --surface: #131316;
+  --surface-2: #1a1a1e;
+  --surface-3: #232329;
+
+  --fg: #fafafa;
+  --fg-muted: #a4a4ae;
+  --fg-subtle: #74747e;
+
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  --raise: rgba(255, 255, 255, 0.04);
+  --raise-2: rgba(255, 255, 255, 0.07);
+  --raise-3: rgba(255, 255, 255, 0.12);
+
+  --violet: #7c3aed;
+  --purple: #a78bfa;
+  --purple-soft: #c4b5fd;
+  --cyan: #22d3ee;
+  --success: #34d399;
+  --warn: #fbbf24;
+  --danger: #fb7185;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 36px -12px rgba(0, 0, 0, 0.8);
+
+  --glow: 0.22;
+  --grid-line: rgba(255, 255, 255, 0.035);
+}
+
+/* ============================================================
+   Tailwind token map. `inline` makes utilities reference the raw
+   custom properties, so every colour utility follows the theme.
+   ============================================================ */
+
+@theme inline {
+  /* Semantic surface + text tokens (preferred in new code). */
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-raise: var(--raise);
+  --color-raise-2: var(--raise-2);
+  --color-raise-3: var(--raise-3);
+
+  /* Accents. */
+  --color-violet: var(--violet);
+  --color-purple: var(--purple);
+  --color-purple-soft: var(--purple-soft);
+  --color-cyan: var(--cyan);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  /* Always-light text/fills for content sitting on photos or scrims,
+     where the backdrop is dark in both themes. */
+  --color-on-media: #ffffff;
+  --color-on-media-muted: rgba(255, 255, 255, 0.72);
+  --color-scrim: rgba(0, 0, 0, 0.55);
+
+  /* Back-compat aliases: the original ink and card token names stay valid, so
+     existing markup keeps working and is now theme-aware. */
+  --color-ink-950: var(--bg);
+  --color-ink-900: var(--bg-subtle);
+  --color-ink-850: var(--surface-2);
+  --color-card: var(--surface);
+  --color-card-2: var(--surface-2);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-card: var(--shadow-md);
+  --shadow-float: var(--shadow-lg);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--violet) 32%, transparent);
+}
+
+/* One consistent focus ring for every interactive element. */
+:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Honour the OS "reduce motion" setting globally: entrance animations,
+   parallax and smooth scrolling all stand down. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Component classes
+   ============================================================ */
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Card surface: borders carry it in dark, a soft shadow in light. */
+  .surface {
+    @apply rounded-2xl border border-line bg-surface;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .surface-raised {
+    @apply rounded-2xl border border-line bg-surface;
+    box-shadow: var(--shadow-md);
+  }
+
+  .text-gradient {
+    background: linear-gradient(100deg, var(--fg) 0%, var(--violet) 48%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-fg outline-none transition placeholder:text-subtle;
+  }
+  .field:focus {
+    border-color: color-mix(in oklab, var(--purple) 55%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--purple) 15%, transparent);
+  }
+
+  .label {
+    @apply mb-2 block text-xs font-medium tracking-wide text-muted uppercase;
+  }
+
+  /* Section rhythm — tighter on phones, roomier on desktop. */
+  .section-y {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* Ambient accent glow; intensity is theme-driven via --glow. */
+.glow {
+  opacity: var(--glow);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Prevent long unbroken strings (URLs, handles) overflowing on phones. */
+.break-anywhere {
+  overflow-wrap: anywhere;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(var(--date-icon-invert, 0));
+}
+[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator {
+  --date-icon-invert: 0.75;
+}

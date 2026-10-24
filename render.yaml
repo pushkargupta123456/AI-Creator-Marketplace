@@ -1,0 +1,59 @@
+# Render Blueprint — deploys BOTH services from this monorepo.
+# Render → New → Blueprint → pick this repo. It reads this file from the repo root.
+#
+# After the first deploy, set the two cross-links in each service's Environment tab
+# (they depend on the URLs Render assigns):
+#   backend  FRONTEND_URL         = https://<frontend-service>.onrender.com   (no trailing slash)
+#   frontend NEXT_PUBLIC_API_URL  = https://<backend-service>.onrender.com/api
+# Then redeploy the frontend once — NEXT_PUBLIC_* is baked in at build time.
+
+services:
+  # ---------------- API ----------------
+  - type: web
+    name: cre8r-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SEED_DEMO_USERS
+        value: "0"
+
+  # ---------------- Web ----------------
+  - type: web
+    name: cre8r-web
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Render passes env vars to `docker build` as build args, which the
+      # frontend Dockerfile picks up via ARG NEXT_PUBLIC_API_URL.
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
